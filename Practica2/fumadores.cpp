@@ -10,16 +10,11 @@
 #include <mutex>
 #include <random> // dispositivos, generadores y distribuciones aleatorias
 #include <chrono> // duraciones (duration), unidades de tiempo
+#include "Semaphore.h"
 #include "HoareMonitor.h"
 
 using namespace std ;
 using namespace HM ;
-
-
-
-// variables compartidas
-const int NUM_FUMADORES = 3; // fumadores
-mutex mtx;
 
 
 //**********************************************************************
@@ -35,36 +30,81 @@ template< int min, int max > int aleatorio()
   return distribucion_uniforme( generador );
 }
 
+// variables compartidas
+const int NUM_FUMADORES = 3; // fumadores
+mutex mtx;
+
+
+
 // --------------------------------------------------------------------
 // monitor Estanco + variables condicion
 
-class Estanco : HoareMonitor {
+class Estanco : public HoareMonitor
+{
 private:
   int ingrediente_mostrador; // ingrediente disponible en el mostrador
   CondVar estanquero_espera; // hebra estanquero espera
   CondVar fumadores[NUM_FUMADORES]; //hebra fumadores
 public:
-  obtenerIngrediente(int i); // fumador espera a que su ingrediente este listo, de mientras se encuentra bloqueado
-  ponerIngrediente(int i); // pone el ingrediente en el ingrediente_mostrador
-  esperarRecogidaIngrediente() // espera hasta que el fumador coge el ingrediente
+  Estanco();
+  void ponerIngrediente(int ingre); // pone el ingrediente en el ingrediente_mostrador
+  void obtenerIngrediente(int ingre); // fumador espera a que su ingrediente este listo, de mientras se encuentra bloqueado
+  void esperarRecogidaIngrediente(); // espera hasta que el fumador coge el ingrediente
 };
 
 // iniciar hebra estanquero y hebras fumadores
 Estanco::Estanco(){
+  ingrediente_mostrador = -1; // el mostrador esta vacio
   estanquero_espera = newCondVar();
   for (int i = 0; i < NUM_FUMADORES; i++) {
     fumadores[i] = newCondVar();
   }
 }
 
+
+void Estanco::ponerIngrediente(int ingre){
+  while(ingrediente_mostrador != -1){
+    estanquero_espera.wait();
+  }
+
+  ingrediente_mostrador = ingre; // se coloca en el mostrador el ingrediente creado
+  mtx.lock();
+  cout << "El estanquero ha colocado el ingrediente " << ingre << " en el mostrador" << endl;
+  mtx.unlock();
+  fumadores[ingre].signal(); // desbloquea hebra fumador del ingrediente
+}
+
+void Estanco::obtenerIngrediente(int ingre){
+  if(ingrediente_mostrador != ingre){
+    fumadores[ingre].wait();
+  }
+
+    mtx.lock();
+    cout << "El fumador " << ingre << " ha recogido su ingrediente para comenzar a fumar " << endl;
+    mtx.unlock();
+    ingrediente_mostrador = -1;
+    estanquero_espera.signal();
+
+}
+
+void Estanco::esperarRecogidaIngrediente(){
+    while(ingrediente_mostrador != -1){
+      //mtx.lock();
+      //cout << "El estanquero esta esperando a que se retire el ingrediente " << endl;
+      //mtx.unlock();
+      estanquero_espera.wait();
+  }
+}
+
 // Procedimiento estanquero crea un ingrediente aleatorio
 
-int producirIngrediente(int i){
+int producirIngrediente(){
   // genera un ingrediente aleatorio
   int ingrediente_aleat(aleatorio<0,2>());
   // espera un tiempo aleatorio
   mtx.lock();
   cout << "El estanquero comienza la preparacion del ingrediente " << ingrediente_aleat << endl;
+  mtx.unlock();
   this_thread::sleep_for( chrono::milliseconds( aleatorio<50,200>()));
   // devuelves el ingrediente generado
   return ingrediente_aleat;
@@ -74,21 +114,16 @@ int producirIngrediente(int i){
 //----------------------------------------------------------------------
 // función que ejecuta la hebra del estanquero
 
-void funcion_hebra_estanquero(  )
+void funcion_hebra_estanquero(MRef<Estanco> estanco)
 {
   int ingrediente;
   while (true) {
-    // sem_wait(mostr_vacio);
-
     // genera un ingrediente aleatorio y además hace un retraso aleatorio
-    //ingrediente = producir();
-
-    //mtx.lock();
-      //cout << "Estanquero: Ha producido ingrediente " << ingrediente << endl << flush;
-    //mtx.unlock();
-    // el ingrediente pasa a estar disponible
-    //sem_signal(ingr_disp[ingrediente]);
-
+    ingrediente = producirIngrediente();
+    // coloca el ingrediente en el mostrador
+    estanco->ponerIngrediente(ingrediente);
+    // espera a que mostrador quede vacio
+    estanco->esperarRecogidaIngrediente();
   }
 }
 
@@ -118,17 +153,11 @@ void fumar( int num_fumador )
 
 //----------------------------------------------------------------------
 // función que ejecuta la hebra del fumador
-void  funcion_hebra_fumador( int num_fumador )
+void funcion_hebra_fumador(int num_fumador, MRef<Estanco> estanco)
 {
    while( true ){
-      // espera hasta que el ingrediente esta disponible
-      //sem_wait(ingr_disp[num_fumador]);
-      //mtx.lock();
-        //cout << "Fumador: retirado ingrediente: " << num_fumador << endl << flush;
-      //mtx.unlock();
-      //sem_signal(mostr_vacio);
-      //fumar(num_fumador);
-
+    estanco->obtenerIngrediente(num_fumador);
+    fumar(num_fumador);
    }
 }
 
@@ -136,13 +165,17 @@ void  funcion_hebra_fumador( int num_fumador )
 
 int main()
 {
-   thread hebraEstanquero(funcion_hebra_estanquero);
-   thread fumadores[3];
-   for(int i = 0; i<3; i++){
-      fumadores[i] = thread (funcion_hebra_fumador,i);
-   }
-   for(int j=0; j<3; j++ ){
-     fumadores[j].join();
-   }
-    hebraEstanquero.join();
+  MRef<Estanco> estanco = Create<Estanco> ();
+  thread estanquero_espera;
+  thread fumadores[NUM_FUMADORES];
+  for(int i=0; i< NUM_FUMADORES; i++){
+    fumadores[i] = thread(funcion_hebra_fumador,estanco,i);
+  }
+  estanquero_espera = thread(funcion_hebra_estanquero,estanco);
+
+  for(int i=0; i < NUM_FUMADORES; i++){
+    fumadores[i].join();
+  }
+
+  estanquero_espera.join();
 }
