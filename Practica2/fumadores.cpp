@@ -89,9 +89,9 @@ void Estanco::obtenerIngrediente(int ingre){
 
 void Estanco::esperarRecogidaIngrediente(){
     while(ingrediente_mostrador != -1){
-      //mtx.lock();
-      //cout << "El estanquero esta esperando a que se retire el ingrediente " << endl;
-      //mtx.unlock();
+      mtx.lock();
+      cout << "El estanquero esta esperando a que se retire el ingrediente " << endl;
+      mtx.unlock();
       estanquero_espera.wait();
   }
 }
@@ -168,9 +168,11 @@ int main()
   MRef<Estanco> estanco = Create<Estanco> ();
   thread estanquero_espera;
   thread fumadores[NUM_FUMADORES];
-  for(int i=0; i< NUM_FUMADORES; i++){
-    fumadores[i] = thread(funcion_hebra_fumador,estanco,i);
+
+ for(int i=0; i< NUM_FUMADORES; i++){
+    fumadores[i] = thread(funcion_hebra_fumador,i,estanco);
   }
+
   estanquero_espera = thread(funcion_hebra_estanquero,estanco);
 
   for(int i=0; i < NUM_FUMADORES; i++){
