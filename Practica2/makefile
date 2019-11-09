@@ -1,7 +1,7 @@
 compilador:=g++
 opcionesc:= -std=c++11 -pthread -Wfatal-errors
 hmonsrcs:= HoareMonitor.h HoareMonitor.cpp Semaphore.h Semaphore.cpp
-	fumadores_exe
+
 all: fumadores_exe
 
 x1: fumadores_exe
