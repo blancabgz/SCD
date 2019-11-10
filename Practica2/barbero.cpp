@@ -47,9 +47,10 @@ CondVar sala_espera_clientes, barbero, silla;
 
 public:
 Barberia();
+
 };
 
-//
+//---------------------------------------------------------------------
 
 Barberia::Barberia(){
   sala_espera_clientes = newCondVar();
