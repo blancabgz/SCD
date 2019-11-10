@@ -30,7 +30,9 @@ template< int min, int max > int aleatorio()
   return distribucion_uniforme( generador );
 }
 
+// ---------------------------------------------------------------------
 // variables compartidas
+
 const int NUM_FUMADORES = 3; // fumadores
 mutex mtx;
 
@@ -54,7 +56,7 @@ public:
 
 // iniciar hebra estanquero y hebras fumadores
 Estanco::Estanco(){
-  ingrediente_mostrador = -1; // el mostrador esta vacio
+  ingrediente_mostrador = NUM_FUMADORES + 1; // el mostrador esta vacio
   estanquero_espera = newCondVar();
   for (int i = 0; i < NUM_FUMADORES; i++) {
     fumadores[i] = newCondVar();
@@ -63,7 +65,7 @@ Estanco::Estanco(){
 
 
 void Estanco::ponerIngrediente(int ingre){
-  while(ingrediente_mostrador != -1){
+  while(ingrediente_mostrador != NUM_FUMADORES + 1){
     estanquero_espera.wait();
   }
 
@@ -82,13 +84,13 @@ void Estanco::obtenerIngrediente(int ingre){
     mtx.lock();
     cout << "El fumador " << ingre << " ha recogido su ingrediente para comenzar a fumar " << endl;
     mtx.unlock();
-    ingrediente_mostrador = -1;
+    ingrediente_mostrador = NUM_FUMADORES + 1;
     estanquero_espera.signal();
 
 }
 
 void Estanco::esperarRecogidaIngrediente(){
-    while(ingrediente_mostrador != -1){
+    while(ingrediente_mostrador != NUM_FUMADORES + 1){
       mtx.lock();
       cout << "El estanquero esta esperando a que se retire el ingrediente " << endl;
       mtx.unlock();
