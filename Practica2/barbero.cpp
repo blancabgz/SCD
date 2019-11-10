@@ -34,10 +34,8 @@ template< int min, int max > int aleatorio()
 // ---------------------------------------------------------------------
 // variables compartidas
 
-int num_clientes; 
+int num_clientes = 4; // numero fijo de clientes que entran
 mutex mtx;
-
-
 
 // --------------------------------------------------------------------
 // monitor Barberia + variables condicion
@@ -45,12 +43,21 @@ mutex mtx;
 class Barberia : public HoareMonitor
 {
 private:
+CondVar sala_espera_clientes, barbero, silla;
 
 public:
-
+Barberia();
 };
 
 //
+
+Barberia::Barberia(){
+  sala_espera_clientes = newCondVar();
+  silla = newCondVar();
+  barbero = newCondVar();
+
+}
+
 
 //----------------------------------------------------------------------
 // función que ejecuta la hebra del barbero
