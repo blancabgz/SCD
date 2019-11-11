@@ -45,8 +45,8 @@ class Estanco : public HoareMonitor
 {
 private:
   int ingrediente_mostrador; // ingrediente disponible en el mostrador
-  CondVar estanquero_espera; // hebra estanquero espera
-  CondVar fumadores[NUM_FUMADORES]; //hebra fumadores
+  CondVar estanquero_espera; // cola estanquero espera
+  CondVar fumadores[NUM_FUMADORES]; //cola fumadores
 public:
   Estanco();
   void ponerIngrediente(int ingre); // pone el ingrediente en el ingrediente_mostrador
@@ -54,7 +54,7 @@ public:
   void esperarRecogidaIngrediente(); // espera hasta que el fumador coge el ingrediente
 };
 
-// iniciar hebra estanquero y hebras fumadores
+// iniciar las colas
 Estanco::Estanco(){
   ingrediente_mostrador = NUM_FUMADORES + 1; // el mostrador esta vacio
   estanquero_espera = newCondVar();
@@ -62,7 +62,6 @@ Estanco::Estanco(){
     fumadores[i] = newCondVar();
   }
 }
-
 
 void Estanco::ponerIngrediente(int ingre){
   while(ingrediente_mostrador != NUM_FUMADORES + 1){
@@ -101,7 +100,7 @@ void Estanco::esperarRecogidaIngrediente(){
 // Procedimiento estanquero crea un ingrediente aleatorio
 
 int producirIngrediente(){
-  // genera un ingrediente aleatorio
+    // genera un ingrediente aleatorio
   int ingrediente_aleat(aleatorio<0,2>());
   // espera un tiempo aleatorio
   mtx.lock();
