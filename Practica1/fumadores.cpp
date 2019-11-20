@@ -19,11 +19,9 @@ using namespace SEM ;
 
 
 // variables compartidas + Semáforos
+const int NUM_FUMADORES = 5; // fumadores
 Semaphore mostr_vacio = 1; // Semaforo para indicar si el mostrador esta vacio o no
-Semaphore ingr_disp[3]={0,0,0}; // Semaforo para controlar si el ingrediente esta disponible(1) o no (0)
-
-const int NUM_FUMADORES = 3; // fumadores
-
+vector<Semaphore> ingr_disp; // Semaforo para controlar si el ingrediente esta disponible(1) o no (0)
 mutex mtx;
 
 
@@ -60,7 +58,7 @@ void funcion_hebra_estanquero(  )
 {
   int ingrediente;
   while (true) {
-    sem_wait(mostr_vacio);
+    sem_wait(mostr_vacio); // pone mostr_vacio a 0
 
     // genera un ingrediente aleatorio y además hace un retraso aleatorio
     ingrediente = producir();
@@ -118,12 +116,16 @@ void  funcion_hebra_fumador( int num_fumador )
 
 int main()
 {
+
+   for(int k=0; k<NUM_FUMADORES; k++){
+		  ingr_disp.push_back(0);
+	 }
    thread hebraEstanquero(funcion_hebra_estanquero);
-   thread fumadores[3];
-   for(int i = 0; i<3; i++){
+   thread fumadores[NUM_FUMADORES];
+   for(int i = 0; i<NUM_FUMADORES; i++){
       fumadores[i] = thread (funcion_hebra_fumador,i);
    }
-   for(int j=0; j<3; j++ ){
+   for(int j=0; j<NUM_FUMADORES; j++ ){
      fumadores[j].join();
    }
     hebraEstanquero.join();
