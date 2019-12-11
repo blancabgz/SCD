@@ -25,6 +25,7 @@ int main( int argc, char *argv[] )
    MPI_Comm_rank( MPI_COMM_WORLD, &id_propio );
    MPI_Comm_size( MPI_COMM_WORLD, &num_procesos_actual );
 
+
    if ( num_min_procesos <= num_procesos_actual  )
    {
       const int  id_anterior  = id_propio-1, // ident. proceso anterior

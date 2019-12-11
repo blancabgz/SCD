@@ -21,7 +21,7 @@ int main( int argc, char *argv[] )
    MPI_Init( &argc, &argv);
    MPI_Comm_rank( MPI_COMM_WORLD, &id_propio );
    MPI_Comm_size( MPI_COMM_WORLD, &num_procesos_actual );
-
+   
    if ( num_procesos_actual % 2 == 0 ) // si número de procesos correcto (par)
    {
       int        valor_enviado = id_propio*(id_propio+1), // dato a enviar
