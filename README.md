@@ -10,7 +10,7 @@ Respositorio de las prácticas de la asignatura **Sistemas Concurrentes y Distri
 
 En el primer seminario se introduce la **programación multihebra** y los **semáforos**.
 
-[Seminario 1](https://github.com/patchispatch/Sistemas-Concurrentes-Distribuidos/blob/master/Seminario1/calculoconcurrenteysecuencial.cpp)
+[Seminario 1](https://github.com/blancabgz/Sistemas-Concurrentes-Distribuidos/blob/master/Seminario1/calculoconcurrenteysecuencial.cpp)
 
 
 
@@ -18,7 +18,7 @@ En el primer seminario se introduce la **programación multihebra** y los **sem�
 
 En el tercer seminario se introduce el **paso de mensajes con MPI**.
 
-[Seminario 3](https://github.com/patchispatch/Sistemas-Concurrentes-Distribuidos/blob/master/Seminario3/seminario3.pdf)
+[Seminario 3](https://github.com/blancabgz/Sistemas-Concurrentes-Distribuidos/blob/master/Seminario3/seminario3.pdf)
 
 
 
@@ -28,7 +28,7 @@ En el tercer seminario se introduce el **paso de mensajes con MPI**.
 
 En esta práctica se introducen conceptos de concurrencia como los **semáforos**, con varios ejercicios para ilustrar y comprender de su funcionamiento.
 
-[Práctica 1](https://github.com/patchispatch/Sistemas-Concurrentes-Distribuidos/tree/master/Practica1)
+[Práctica 1](https://github.com/blancabgz/Sistemas-Concurrentes-Distribuidos/tree/master/Practica1)
 
 
 
@@ -36,7 +36,7 @@ En esta práctica se introducen conceptos de concurrencia como los **semáforos*
 
 En la segunda práctica se trabaja con los **monitores**, su diferencia con los semáforos y su mayor flexibilidad para gestionar procesos concurrentes.
 
-[Práctica 2](https://github.com/patchispatch/Sistemas-Concurrentes-Distribuidos/tree/master/Practica2)
+[Práctica 2](https://github.com/blancabgz/Sistemas-Concurrentes-Distribuidos/tree/master/Practica2)
 
 
 
@@ -44,4 +44,4 @@ En la segunda práctica se trabaja con los **monitores**, su diferencia con los 
 
 En esta práctica se introduce la concurrencia con **paso de mensajes** utilizando OpenMPI, con varios ejemplos y ejercicios.
 
-[Práctica 3](https://github.com/patchispatch/Sistemas-Concurrentes-Distribuidos/tree/master/Practica3)
+[Práctica 3](https://github.com/blancabgz/Sistemas-Concurrentes-Distribuidos/tree/master/Practica3)
